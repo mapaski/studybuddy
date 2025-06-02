@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,10 +106,17 @@
       position: absolute;
       bottom: 20px;
       right: 20px;
-      width: 300px;
-      height: 80px;
-      border-radius: 12px;
-      overflow: hidden;
+    }
+
+    #playSpotifyBtn {
+      background-color: #1DB954;
+      color: white;
+      font-size: 0.9rem;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -164,10 +170,11 @@
       <div id="timer"></div>
       <img id="character" src="" alt="Character" />
       <button id="stopBtn">Stop</button>
-      <iframe id="spotifyPlayer" 
-        src="https://open.spotify.com/playlist/1RInHlhhs3biMHEptBgzhr"
-        width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
-      </iframe>
+
+      <div id="spotifyPlayer">
+        <button id="playSpotifyBtn">▶️ Play Study Vibes</button>
+        <div id="spotifyIframe" style="margin-top: 10px;"></div>
+      </div>
     </div>
   </div>
 
@@ -181,6 +188,9 @@
     const timerDisplay = document.getElementById('timer');
     const spotifyPlayer = document.getElementById('spotifyPlayer');
     const spotifyCheck = document.getElementById('spotifyCheck');
+    const playSpotifyBtn = document.getElementById('playSpotifyBtn');
+    const spotifyIframeContainer = document.getElementById('spotifyIframe');
+
     let timerInterval;
 
     startBtn.addEventListener('click', () => {
@@ -194,6 +204,8 @@
 
       if (spotifyCheck.checked) {
         spotifyPlayer.style.display = "block";
+        playSpotifyBtn.style.display = "block";
+        spotifyIframeContainer.innerHTML = '';
       } else {
         spotifyPlayer.style.display = "none";
       }
@@ -208,6 +220,18 @@
       studyScreen.style.display = 'none';
       timerDisplay.textContent = '';
       spotifyPlayer.style.display = 'none';
+      spotifyIframeContainer.innerHTML = '';
+    });
+
+    playSpotifyBtn.addEventListener('click', () => {
+      spotifyIframeContainer.innerHTML = `
+        <iframe style="border-radius:12px"
+          src="https://open.spotify.com/embed/playlist/1RInHlhhs3biMHEptBgzhr?utm_source=generator"
+          width="300" height="80" frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy">
+        </iframe>`;
+      playSpotifyBtn.style.display = 'none';
     });
 
     function startTimer(seconds) {
@@ -230,3 +254,4 @@
   </script>
 </body>
 </html>
+
