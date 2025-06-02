@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Study With Me</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Baloo 2', cursive;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #ffe6f0;
+    }
+
+    #setupScreen, #studyScreen {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+
+    #studyScreen {
+      display: none;
+    }
+
+    .card {
+      background: white;
+      padding: 1rem 2rem;
+      margin: 1rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    select, button {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+
+    #character {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+      pointer-events: none;
+      opacity: 0.95;
+    }
+
+    #timer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 2rem;
+      background: rgba(255,255,255,0.8);
+      padding: 0.7rem 1.2rem;
+      border-radius: 12px;
+    }
+
+    #stopBtn {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background: #ffdddd;
+      border: 1px solid #cc0000;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #spotifyPlayer {
+      display: none;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 80px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="setupScreen">
+    <div class="card">
+      <h1>Hi, let's get this ultimate focused study session going star!! ✨</h1>
+    </div>
+
+    <div class="card">
+      <label for="characterSelect">Choose your study buddy:</label>
+      <select id="characterSelect">
+        <option value="studycat.png">Study Cat</option>
+        <option value="female.png">Focused PhD student (female)</option>
+        <option value="male.png">Focused PhD student (male)</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="backgroundSelect">Choose your study vibe:</label>
+      <select id="backgroundSelect">
+        <option value="cafe.jpg">Cafe</option>
+        <option value="library.jpg">Library</option>
+        <option value="studyroom.jpg">Study Room</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="timerSelect">Set your timer:</label>
+      <select id="timerSelect">
+        <option value="900">15 minutes</option>
+        <option value="1800">30 minutes</option>
+        <option value="3600">1 hour</option>
+        <option value="7200">2 hours</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label>
+        <input type="checkbox" id="spotifyCheck" /> Play Spotify playlist 🎵
+      </label>
+    </div>
+
+    <div class="card">
+      <button id="startBtn">Start Studying</button>
+    </div>
+  </div>
+
+  <div id="studyScreen">
+    <div id="scene">
+      <div id="timer"></div>
+      <img id="character" src="" alt="Character" />
+      <button id="stopBtn">Stop</button>
+      <iframe id="spotifyPlayer" 
+        src="https://open.spotify.com/playlist/1RInHlhhs3biMHEptBgzhr"
+        width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    const setupScreen = document.getElementById('setupScreen');
+    const studyScreen = document.getElementById('studyScreen');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const characterImg = document.getElementById('character');
+    const scene = document.getElementById('scene');
+    const timerDisplay = document.getElementById('timer');
+    const spotifyPlayer = document.getElementById('spotifyPlayer');
+    const spotifyCheck = document.getElementById('spotifyCheck');
+    let timerInterval;
+
+    startBtn.addEventListener('click', () => {
+      const character = document.getElementById('characterSelect').value;
+      const background = document.getElementById('backgroundSelect').value;
+      const duration = parseInt(document.getElementById('timerSelect').value);
+
+      characterImg.src = character;
+      scene.style.backgroundImage = `url(${background})`;
+      startTimer(duration);
+
+      if (spotifyCheck.checked) {
+        spotifyPlayer.style.display = "block";
+      } else {
+        spotifyPlayer.style.display = "none";
+      }
+
+      setupScreen.style.display = 'none';
+      studyScreen.style.display = 'flex';
+    });
+
+    stopBtn.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      setupScreen.style.display = 'flex';
+      studyScreen.style.display = 'none';
+      timerDisplay.textContent = '';
+      spotifyPlayer.style.display = 'none';
+    });
+
+    function startTimer(seconds) {
+      let remaining = seconds;
+      updateTimerDisplay(remaining);
+      timerInterval = setInterval(() => {
+        remaining--;
+        updateTimerDisplay(remaining);
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+  </script>
+</body>
+</html>
