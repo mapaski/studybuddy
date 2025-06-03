@@ -1,296 +1,803 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Study Buddy</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #ffe4f2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      transition: background-image 0.5s ease-in-out;
-      background-size: cover;
-      background-position: center;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>High Focus Study Session</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  :root {
+    --baby-pink: #ffc0cb;
+    --baby-pink-dark: #eaa0b7;
+    --white: #fff;
+    --shadow: rgba(0,0,0,0.15);
+    --font-main: 'Poppins', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body, html {
+    margin: 0; padding: 0;
+    font-family: var(--font-main);
+    background: var(--baby-pink);
+    color: #333;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #app {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  /* COMMON BUTTON STYLE */
+  button {
+    cursor: pointer;
+    background-color: var(--baby-pink-dark);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px var(--shadow);
+    transition: background-color 0.3s ease;
+  }
+  button:hover:not(:disabled) {
+    background-color: #d4788a;
+  }
+  button:disabled {
+    background-color: #f2a8bb;
+    cursor: default;
+  }
+
+  /* INITIAL VIEW */
+  #initialView {
+    background: var(--baby-pink);
+    width: 100%;
+    height: 100%;
+    padding: 30px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #initialView h1 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #a6365f;
+  }
+
+  .selection-group {
+    width: 100%;
+    max-width: 450px;
+    background: #ffe6eb;
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 12px var(--shadow);
+  }
+
+  .selection-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 10px;
+    color: #8b2f4a;
+  }
+
+  .characters, .backgrounds {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+  }
+
+  .characters img, .backgrounds img {
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+    cursor: pointer;
+    object-fit: cover;
+    border: 3px solid transparent;
+    box-shadow: 0 4px 8px var(--shadow);
+    transition: border-color 0.3s ease;
+  }
+
+  .characters img.selected, .backgrounds img.selected {
+    border-color: #a6365f;
+  }
+
+  select, input[type=number] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1.8px solid #a6365f;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    background: #fff0f2;
+    color: #6f2540;
+    outline-offset: 2px;
+  }
+
+  /* Spotify toggle */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .toggle-row input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+  }
+  .toggle-row label {
+    font-weight: 600;
+    color: #8b2f4a;
+  }
+
+  /* To-do list input */
+  #todoInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #todoInputs input[type="text"] {
+    border-radius: 12px;
+    border: 1.5px solid #a6365f;
+    padding: 10px 14px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: #fff0f2;
+    color: #6f2540;
+  }
+
+  /* Start Button */
+  #startButton {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 1.1rem;
+  }
+
+  /* FINAL VIEW */
+  #finalView {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: none;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    filter: drop-shadow(0 4px 10px var(--shadow));
+  }
+
+  #characterFinal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 45vmin;
+    height: 45vmin;
+    object-fit: contain;
+    transform: translate(-50%, -50%);
+    user-select: none;
+    pointer-events: none;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.2));
+  }
+
+  /* Timer container top right */
+  #timers {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  /* Circular timer */
+  #mainTimerSvg {
+    width: 130px;
+    height: 130px;
+    cursor: default;
+  }
+  #mainTimerSvg circle {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+  }
+  #mainTimerBg {
+    stroke: rgba(255, 192, 203, 0.4);
+  }
+  #mainTimerProgress {
+    stroke: #a6365f;
+    transition: stroke-dashoffset 1s linear;
+  }
+  #mainTimerText {
+    font-size: 1.8rem;
+    fill: #8b2f4a;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* Mini timer below */
+  #miniTimer {
+    font-weight: 600;
+    font-size: 1rem;
+    background: #ffe6ebcc;
+    border-radius: 14px;
+    padding: 6px 12px;
+    color: #8b2f4a;
+    box-shadow: 0 2px 6px var(--shadow);
+    user-select: none;
+  }
+
+  /* To-do list top left */
+  #todoFinal {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #ffe6ebcc;
+    border-radius: 16px;
+    padding: 18px 24px;
+    max-width: 260px;
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  #todoFinal h3 {
+    margin: 0 0 12px 0;
+    color: #8b2f4a;
+    font-weight: 700;
+    font-size: 1.2rem;
+    user-select: none;
+  }
+  #todoFinal ul {
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  #todoFinal ul li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #6f2540;
+  }
+  #todoFinal ul li input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  /* Stop Button bottom right */
+  #stopButton {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: #e5586d;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+    line-height: 48px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 10px var(--shadow);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #stopButton:hover {
+    background: #c43b53;
+  }
+
+  /* Spotify iframe */
+  #spotifyContainer {
+    width: 100%;
+    height: 80px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px var(--shadow);
+  }
+  #spotifyContainer iframe {
+    border-radius: 14px;
+    width: 100%;
+    height: 80px;
+    pointer-events: auto;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 500px) {
+    #finalView #characterFinal {
+      width: 70vw;
+      height: 70vw;
     }
-    .container {
-      max-width: 500px;
-      width: 90%;
-      background: rgba(255, 240, 245, 0.95);
-      padding: 25px;
-      margin-top: 40px;
-      border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(255, 105, 180, 0.3);
-      border: 2px solid #ff69b4;
+    #todoFinal {
+      max-width: 90vw;
+      font-size: 0.9rem;
+      padding: 12px 16px;
     }
-    h2 {
-      text-align: center;
-      color: #d63384;
-    }
-    select, input[type="number"] {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: 1px solid #ffb6c1;
-      background: #fff0f5;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      background-color: #ff69b4;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background-color: #d63384;
-    }
-    #timer-screen {
-      display: none;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px;
-      width: 100%;
-      position: relative;
-    }
-    #character-image {
-      max-width: 40%;
-      max-height: 80vh;
-      object-fit: contain;
-    }
-    #timer-tools {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      padding: 20px;
-    }
-    #mode-label {
-      font-size: 2em;
-      color: #d63384;
-    }
-    #timer-display {
-      font-size: 4em;
-      margin: 20px 0;
-    }
-    #progress-bar {
-      width: 10px;
-      height: 200px;
-      background: #ffd6e8;
-      position: relative;
-      border-radius: 5px;
-    }
-    #progress-fill {
-      background: #d63384;
-      width: 100%;
-      position: absolute;
-      bottom: 0;
-      height: 0%;
-      border-radius: 5px;
-    }
-    #rest-info {
-      margin-top: 10px;
-    }
-    #persona {
-      font-size: 2.2rem;
-      position: absolute;
-      top: 10px;
-      right: 20px;
-    }
-    .music-player {
-      margin-top: 20px;
-      display: none;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <div id="persona">🎭</div>
-  <div class="container" id="setup-screen">
-    <h2>🎓 Welcome to Study Buddy!</h2>
+<div id="app">
 
-    <label>⏳ Study Duration</label>
-    <select id="study-duration">
-      <option value="25">25 mins</option>
-      <option value="50">50 mins</option>
-      <option value="90">90 mins</option>
-      <option value="custom">Custom</option>
-    </select>
-    <input type="number" id="custom-duration" placeholder="Enter minutes (min 5)" style="display:none;" />
+  <!-- INITIAL VIEW -->
+  <div id="initialView">
+    <h1>Let's get this high focus study session going star ⭐</h1>
 
-    <label>🔁 Break Frequency</label>
-    <select id="break-frequency"></select>
-
-    <label>☕ Break Duration</label>
-    <select id="break-duration">
-      <option value="5">5 mins</option>
-      <option value="10">10 mins</option>
-      <option value="15">15 mins</option>
-    </select>
-
-    <label>🎭 Persona</label>
-    <select id="persona-select">
-      <option value="😺">Cat</option>
-      <option value="👨‍🎓">Male PhD Student</option>
-      <option value="👩‍🎓">Female PhD Student</option>
-    </select>
-
-    <label>🎨 Background</label>
-    <select id="background-select">
-      <option value="cafe.jpg">Cafe</option>
-      <option value="library.jpg">Library</option>
-      <option value="studyroom.jpg">Study Room</option>
-    </select>
-
-    <button onclick="startSession()">Start Study Session</button>
-    <button onclick="toggleMusic()">🎵 Toggle Music</button>
-    <div class="music-player" id="music-player">
-      <iframe style="border-radius:12px"
-        src="https://open.spotify.com/embed/playlist/4NsAR3jEzcLNSLHDq6CGH1?utm_source=generator"
-        width="100%" height="80" frameBorder="0"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy">
-      </iframe>
-    </div>
-  </div>
-
-  <div id="timer-screen">
-    <img id="character-image" src="cat.png" alt="Character" />
-    <div id="timer-tools">
-      <h2 id="mode-label">Focus Time</h2>
-      <h1 id="timer-display">00:00</h1>
-      <div id="progress-bar">
-        <div id="progress-fill"></div>
+    <div class="selection-group">
+      <label for="characterSelect">Choose your character</label>
+      <div class="characters">
+        <img src="cat.png" alt="Cat" id="char-cat" class="selected" />
+        <img src="female.png" alt="Female PhD student" id="char-female" />
+        <img src="male.png" alt="Male PhD student" id="char-male" />
       </div>
-      <div id="rest-info">Next break in X mins</div>
     </div>
+
+    <div class="selection-group">
+      <label for="backgroundSelect">Choose your background</label>
+      <div class="backgrounds">
+        <img src="studyroom.jpg" alt="Studyroom" id="bg-studyroom" class="selected" />
+        <img src="library.jpg" alt="Library" id="bg-library" />
+        <img src="cafe.jpg" alt="Cafe" id="bg-cafe" />
+      </div>
+    </div>
+
+    <div class="selection-group">
+      <label for="studyTime">Choose study session time</label>
+      <select id="studyTime">
+        <option value="60">1 hr</option>
+        <option value="75">1 hr 15 min</option>
+        <option value="90">1 hr 30 min</option>
+        <option value="105">1 hr 45 min</option>
+        <option value="120">2 hr</option>
+        <option value="135">2 hr 15 min</option>
+        <option value="150">2 hr 30 min</option>
+        <option value="165">2 hr 45 min</option>
+        <option value="180">3 hr</option>
+        <option value="195">3 hr 15 min</option>
+        <option value="210">3 hr 30 min</option>
+        <option value="225">3 hr 45 min</option>
+        <option value="240">4 hr</option>
+      </select>
+
+      <label for="breakFrequency">Select break frequency</label>
+      <select id="breakFrequency">
+        <!-- Options dynamically populated -->
+      </select>
+
+      <label for="breakTime">Select break time</label>
+      <select id="breakTime">
+        <option value="10">10 minutes</option>
+        <option value="15">15 minutes</option>
+      </select>
+    </div>
+
+    <div class="selection-group">
+      <div class="toggle-row">
+        <input type="checkbox" id="spotifyToggle" />
+        <label for="spotifyToggle">Play Spotify playlist</label>
+      </div>
+      <div id="spotifyContainer" style="display:none;">
+        <iframe src="https://open.spotify.com/embed/playlist/4NsAR3jEzcLNSLHDq6CGH1" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+      </div>
+    </div>
+
+    <div class="selection-group">
+      <label>To-do list (up to 5 goals)</label>
+      <div id="todoInputs">
+        <input type="text" placeholder="Goal 1" maxlength="50" />
+        <input type="text" placeholder="Goal 2" maxlength="50" />
+        <input type="text" placeholder="Goal 3" maxlength="50" />
+        <input type="text" placeholder="Goal 4" maxlength="50" />
+        <input type="text" placeholder="Goal 5" maxlength="50" />
+      </div>
+    </div>
+
+    <button id="startButton">Start Study Session</button>
   </div>
 
-  <script>
-    const personaIcon = document.getElementById('persona');
-    const studyDurationSelect = document.getElementById('study-duration');
-    const customDurationInput = document.getElementById('custom-duration');
-    const breakFrequencySelect = document.getElementById('break-frequency');
-    const timerDisplay = document.getElementById('timer-display');
-    const progressFill = document.getElementById('progress-fill');
-    const restInfo = document.getElementById('rest-info');
-    const timerScreen = document.getElementById('timer-screen');
-    const setupScreen = document.getElementById('setup-screen');
-    const modeLabel = document.getElementById('mode-label');
-    const musicPlayer = document.getElementById('music-player');
+  <!-- FINAL VIEW -->
+  <div id="finalView">
+    <img id="characterFinal" src="" alt="Selected Character" draggable="false" />
+    <div id="timers">
+      <svg id="mainTimerSvg" viewBox="0 0 120 120">
+        <circle id="mainTimerBg" cx="60" cy="60" r="54" />
+        <circle id="mainTimerProgress" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="339.292" />
+        <text id="mainTimerText" x="60" y="68">00:00</text>
+      </svg>
+      <div id="miniTimer">Next break in 00:00</div>
+    </div>
 
-    let studyTime = 0;
-    let breakTime = 0;
-    let interval;
-    let remaining = 0;
-    let currentPhase = 'study';
-    let breakPoints = [];
-    let totalTime = 0;
+    <div id="todoFinal">
+      <h3>To-Do List</h3>
+      <ul id="todoFinalList"></ul>
+    </div>
 
-    studyDurationSelect.addEventListener('change', () => {
-      if (studyDurationSelect.value === 'custom') {
-        customDurationInput.style.display = 'block';
-      } else {
-        customDurationInput.style.display = 'none';
-        updateBreakOptions();
+    <div id="stopButton" title="Stop and go back to setup">&#10005;</div>
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    const app = document.getElementById('app');
+
+    // Elements
+    const initialView = document.getElementById('initialView');
+    const finalView = document.getElementById('finalView');
+
+    // Character selection
+    const characters = {
+      cat: document.getElementById('char-cat'),
+      female: document.getElementById('char-female'),
+      male: document.getElementById('char-male'),
+    };
+    let selectedCharacter = 'cat';
+
+    // Background selection
+    const backgrounds = {
+      studyroom: document.getElementById('bg-studyroom'),
+      library: document.getElementById('bg-library'),
+      cafe: document.getElementById('bg-cafe'),
+    };
+    let selectedBackground = 'studyroom';
+
+    // Controls
+    const studyTimeSelect = document.getElementById('studyTime');
+    const breakFrequencySelect = document.getElementById('breakFrequency');
+    const breakTimeSelect = document.getElementById('breakTime');
+    const spotifyToggle = document.getElementById('spotifyToggle');
+    const spotifyContainer = document.getElementById('spotifyContainer');
+    const todoInputs = document.querySelectorAll('#todoInputs input[type="text"]');
+    const startButton = document.getElementById('startButton');
+
+    // Final view elements
+    const characterFinal = document.getElementById('characterFinal');
+    const todoFinalList = document.getElementById('todoFinalList');
+    const stopButton = document.getElementById('stopButton');
+    const finalTimers = document.getElementById('timers');
+    const mainTimerText = document.getElementById('mainTimerText');
+    const miniTimerText = document.getElementById('miniTimer');
+    const mainTimerProgress = document.getElementById('mainTimerProgress');
+
+    // Constants for timer circle
+    const RADIUS = 54;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+    mainTimerProgress.style.strokeDasharray = CIRCUMFERENCE;
+    mainTimerProgress.style.strokeDashoffset = CIRCUMFERENCE;
+
+    // Handle character select
+    Object.entries(characters).forEach(([key, img]) => {
+      img.addEventListener('click', () => {
+        if (selectedCharacter === key) return;
+        characters[selectedCharacter].classList.remove('selected');
+        img.classList.add('selected');
+        selectedCharacter = key;
+      });
+    });
+
+    // Handle background select
+    Object.entries(backgrounds).forEach(([key, img]) => {
+      img.addEventListener('click', () => {
+        if (selectedBackground === key) return;
+        backgrounds[selectedBackground].classList.remove('selected');
+        img.classList.add('selected');
+        selectedBackground = key;
+      });
+    });
+
+function populateBreakFrequencyOptions() {
+  const studyMins = studyTime / 60;
+  const possibleFreqs = [15, 30, 45, 60, 90, 120, 180, 240];
+  const validFreqs = possibleFreqs.filter(f => f <= studyMins && f >= 15);
+
+  breakFreqSelect.innerHTML = '';
+
+  validFreqs.forEach(freq => {
+    const option = document.createElement('option');
+    option.value = freq * 60; // convert to seconds for later use
+    option.textContent = `Every ${freq} minute${freq > 1 ? 's' : ''}`;
+    breakFreqSelect.appendChild(option);
+  });
+
+  // Select the smallest valid frequency by default (or closest to 15min)
+  breakFreqSelect.value = validFreqs.length ? validFreqs[0] * 60 : '';
+}
+      <h3>Your Goals</h3>
+      <ul id="todoListFinal">
+        <!-- dynamically filled -->
+      </ul>
+    </div>
+
+    <div id="stopButton" title="Stop Session & Reset">&#10005;</div>
+  </div>
+
+</div>
+
+<script>
+  // Images sources (placeholders for now, replace with actual paths if needed)
+  const characterImages = {
+    cat: 'cat.png',
+    female: 'female.png',
+    male: 'male.png',
+  };
+  const backgroundImages = {
+    studyroom: 'studyroom.jpg',
+    library: 'library.jpg',
+    cafe: 'cafe.jpg',
+  };
+
+  // Elements
+  const initialView = document.getElementById('initialView');
+  const finalView = document.getElementById('finalView');
+
+  const charImgs = document.querySelectorAll('.characters img');
+  const bgImgs = document.querySelectorAll('.backgrounds img');
+
+  const studyTimeSelect = document.getElementById('studyTime');
+  const breakFreqSelect = document.getElementById('breakFrequency');
+  const breakTimeSelect = document.getElementById('breakTime');
+
+  const spotifyToggle = document.getElementById('spotifyToggle');
+  const spotifyContainer = document.getElementById('spotifyContainer');
+
+  const todoInputs = document.querySelectorAll('#todoInputs input[type=text]');
+  const todoListFinal = document.getElementById('todoListFinal');
+
+  const startButton = document.getElementById('startButton');
+  const stopButton = document.getElementById('stopButton');
+
+  const characterFinalImg = document.getElementById('characterFinal');
+  const finalBg = finalView.style;
+
+  // Timer elements
+  const mainTimerProgress = document.getElementById('mainTimerProgress');
+  const mainTimerText = document.getElementById('mainTimerText');
+  const miniTimerText = document.getElementById('miniTimer');
+
+  // Constants for circular timer
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+
+  mainTimerProgress.style.strokeDasharray = circumference;
+  mainTimerProgress.style.strokeDashoffset = circumference;
+
+  // Variables for session
+  let selectedCharacter = 'cat';
+  let selectedBackground = 'studyroom';
+  let studyTime = 60 * 60; // in seconds (default 1hr)
+  let breakFrequency = 15 * 60; // in seconds (default 15min)
+  let breakTime = 10 * 60; // in seconds (default 10min)
+  let isOnBreak = false;
+
+  let totalSessionSeconds;
+  let sessionStartTime;
+  let sessionTimerInterval;
+
+  let nextBreakTime;
+  let breakTimer;
+
+  // Initialize breakFrequency options based on studyTime
+  function populateBreakFrequencyOptions() {
+    breakFreqSelect.innerHTML = '';
+    const maxBreaks = Math.floor(studyTime / (10 * 60)); // min 10 min per break
+    for(let breaks = 1; breaks <= maxBreaks && breaks <= 12; breaks++) {
+      const option = document.createElement('option');
+      option.value = Math.floor(studyTime / breaks);
+      option.textContent = breaks + (breaks === 1 ? ' break' : ' breaks');
+      breakFreqSelect.appendChild(option);
+    }
+    // Select default middle option or closest to 15min
+    let selectedOption = Array.from(breakFreqSelect.options).find(opt => Math.abs(opt.value - 900) < 60);
+    if (!selectedOption) selectedOption = breakFreqSelect.options[0];
+    breakFreqSelect.value = selectedOption.value;
+  }
+
+  populateBreakFrequencyOptions();
+
+  // Update breakFrequency when studyTime changes
+  studyTimeSelect.addEventListener('change', () => {
+    studyTime = parseInt(studyTimeSelect.value) * 60;
+    populateBreakFrequencyOptions();
+  });
+
+  // Update breakTime when changed
+  breakTimeSelect.addEventListener('change', () => {
+    breakTime = parseInt(breakTimeSelect.value) * 60;
+  });
+
+  // Update breakFrequency when changed
+  breakFreqSelect.addEventListener('change', () => {
+    breakFrequency = parseInt(breakFreqSelect.value);
+  });
+
+  // Character selection
+  charImgs.forEach(img => {
+    img.addEventListener('click', () => {
+      charImgs.forEach(i => i.classList.remove('selected'));
+      img.classList.add('selected');
+      selectedCharacter = img.id.split('-')[1];
+    });
+  });
+
+  // Background selection
+  bgImgs.forEach(img => {
+    img.addEventListener('click', () => {
+      bgImgs.forEach(i => i.classList.remove('selected'));
+      img.classList.add('selected');
+      selectedBackground = img.id.split('-')[1];
+    });
+  });
+
+  // Spotify toggle
+  spotifyToggle.addEventListener('change', () => {
+    spotifyContainer.style.display = spotifyToggle.checked ? 'block' : 'none';
+  });
+
+  // Helper: format seconds as mm:ss
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+  }
+
+  // Start session
+  startButton.addEventListener('click', () => {
+    // Validate to-do list: at least 1 non-empty
+    let hasGoal = Array.from(todoInputs).some(input => input.value.trim() !== '');
+    if(!hasGoal) {
+      alert('Please enter at least one goal for your session.');
+      return;
+    }
+
+    // Setup variables
+    studyTime = parseInt(studyTimeSelect.value) * 60;
+    breakFrequency = parseInt(breakFreqSelect.value);
+    breakTime = parseInt(breakTimeSelect.value) * 60;
+
+    totalSessionSeconds = studyTime;
+    sessionStartTime = Date.now();
+    nextBreakTime = breakFrequency;
+
+    // Set background
+    finalBg.backgroundImage = `url(${backgroundImages[selectedBackground]})`;
+
+    // Set character image
+    characterFinalImg.src = characterImages[selectedCharacter];
+
+    // Populate to-do list in final view
+    todoListFinal.innerHTML = '';
+    todoInputs.forEach(input => {
+      let val = input.value.trim();
+      if(val) {
+        const li = document.createElement('li');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.title = 'Mark as done';
+        li.appendChild(cb);
+        li.appendChild(document.createTextNode(val));
+        todoListFinal.appendChild(li);
       }
     });
 
-    customDurationInput.addEventListener('input', updateBreakOptions);
+    // Hide initial view, show final view
+    initialView.style.display = 'none';
+    finalView.style.display = 'block';
 
-    function updateBreakOptions() {
-      let value = studyDurationSelect.value === 'custom' ? parseInt(customDurationInput.value) : parseInt(studyDurationSelect.value);
-      breakFrequencySelect.innerHTML = '';
-      if (value >= 30) {
-        for (let i = 15; i <= value / 2; i += 15) {
-          let opt = document.createElement('option');
-          opt.value = i;
-          opt.textContent = `Break every ${i} mins`;
-          breakFrequencySelect.appendChild(opt);
-        }
-      } else {
-        let opt = document.createElement('option');
-        opt.value = value;
-        opt.textContent = `Break after ${value} mins`;
-        breakFrequencySelect.appendChild(opt);
-      }
-    }
+    // Reset timer circle
+    mainTimerProgress.style.strokeDashoffset = circumference;
 
-    function toggleMusic() {
-      musicPlayer.style.display = musicPlayer.style.display === 'none' ? 'block' : 'none';
-    }
+    // Start timers
+    startSessionTimer();
+  });
 
-    function startSession() {
-      studyTime = studyDurationSelect.value === 'custom' ? parseInt(customDurationInput.value) : parseInt(studyDurationSelect.value);
-      if (isNaN(studyTime) || studyTime < 5) {
-        alert('Please enter a valid study duration (minimum 5 minutes).');
+  // Stop and reset session
+  stopButton.addEventListener('click', () => {
+    clearInterval(sessionTimerInterval);
+    clearTimeout(breakTimer);
+    isOnBreak = false;
+
+    // Reset views
+    finalView.style.display = 'none';
+    initialView.style.display = 'flex';
+
+    // Reset spotify
+    spotifyToggle.checked = false;
+    spotifyContainer.style.display = 'none';
+
+    // Reset to-do inputs
+    todoInputs.forEach(input => input.value = '');
+  });
+
+  // Main session timer
+  function startSessionTimer() {
+    let elapsed = 0;
+    let remaining = totalSessionSeconds;
+
+    function updateTimer() {
+      elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+      remaining = totalSessionSeconds - elapsed;
+
+      if(remaining <= 0) {
+        // Session complete
+        mainTimerText.textContent = '00:00';
+        mainTimerProgress.style.strokeDashoffset = 0;
+        miniTimerText.textContent = 'Session complete! Well done 🎉';
+
+        clearInterval(sessionTimerInterval);
         return;
       }
-      breakTime = parseInt(document.getElementById('break-duration').value);
-      let freq = parseInt(breakFrequencySelect.value);
-      breakPoints = [];
-      for (let t = freq; t < studyTime; t += freq) breakPoints.push(t);
-      totalTime = studyTime + breakPoints.length * breakTime;
-      personaIcon.textContent = document.getElementById('persona-select').value;
-      document.body.style.backgroundImage = `url('${document.getElementById('background-select').value}')`;
 
-      setupScreen.style.display = 'none';
-      timerScreen.style.display = 'flex';
-      startTimer();
+      // Update circle progress
+      let progress = circumference * (remaining / totalSessionSeconds);
+      mainTimerProgress.style.strokeDashoffset = progress;
+
+      // Update main timer text
+      mainTimerText.textContent = formatTime(remaining);
+
+      // Manage breaks
+      let timeSinceLastBreak = elapsed % breakFrequency;
+      let timeUntilBreak = breakFrequency - timeSinceLastBreak;
+
+      if (!isOnBreak && timeUntilBreak <= 0) {
+        // Time for break
+        startBreak();
+      } else if (!isOnBreak) {
+        miniTimerText.textContent = `Next break in ${formatTime(timeUntilBreak)}`;
+      }
     }
 
-    function startTimer() {
-      let elapsed = 0;
-      let nextBreakIndex = 0;
-      remaining = studyTime * 60;
-      updateDisplay();
-      interval = setInterval(() => {
-        remaining--;
-        elapsed++;
-        let percent = (elapsed / (totalTime * 60)) * 100;
-        progressFill.style.height = percent + '%';
-        updateDisplay();
+    sessionTimerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); // immediate update
+  }
 
-        if (remaining <= 0) {
-          if (currentPhase === 'study' && nextBreakIndex < breakPoints.length) {
-            currentPhase = 'break';
-            remaining = breakTime * 60;
-            modeLabel.textContent = 'Break Time';
-            restInfo.textContent = `Work resumes in ${breakTime} mins`;
-            new Audio('ding.mp3').play();
-            nextBreakIndex++;
-          } else if (currentPhase === 'break') {
-            currentPhase = 'study';
-            let nextSpan = (breakPoints[nextBreakIndex] - breakPoints[nextBreakIndex - 1]) || breakPoints[0];
-            remaining = nextSpan * 60;
-            modeLabel.textContent = 'Focus Time';
-            restInfo.textContent = `Next break in ${Math.floor(remaining / 60)} mins`;
-            new Audio('ding.mp3').play();
-          } else {
-            clearInterval(interval);
-            alert('Study session complete! 🎉');
-          }
-        }
-      }, 1000);
-    }
+  // Start break timer
+  function startBreak() {
+    isOnBreak = true;
+    miniTimerText.textContent = `Break time! Relax for ${formatTime(breakTime)}`;
 
-    function updateDisplay() {
-      let min = Math.floor(remaining / 60);
-      let sec = remaining % 60;
-      timerDisplay.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-    }
-  </script>
+    // Visual feedback: change circle stroke to lighter color during break
+    mainTimerProgress.style.stroke = '#f4a7b9';
+
+    let breakSecondsLeft = breakTime;
+
+    breakTimer = setInterval(() => {
+      breakSecondsLeft--;
+      miniTimerText.textContent = `Break time! Relax for ${formatTime(breakSecondsLeft)}`;
+
+      if(breakSecondsLeft <= 0) {
+        clearInterval(breakTimer);
+        isOnBreak = false;
+
+        // Reset circle stroke color
+        mainTimerProgress.style.stroke = '#a6365f';
+
+        // Reset next break time relative to elapsed time
+        sessionStartTime = Date.now() - ((totalSessionSeconds - (breakFrequency * Math.floor((totalSessionSeconds - breakSecondsLeft) / breakFrequency))) * 1000);
+
+        miniTimerText.textContent = `Back to work! Next break in ${formatTime(breakFrequency)}`;
+      }
+    }, 1000);
+  }
+
+</script>
+
 </body>
 </html>
+
