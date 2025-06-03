@@ -2,570 +2,281 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Study With Me</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" />
+  <title>Study Buddy</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      font-family: 'Baloo 2', cursive;
-      color: #333;
-      background: #ffe6f0;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    body.dark {
-      background: #1e1e2f;
-      color: #ccc;
-    }
-
-    #setupScreen, #studyScreen {
-      position: absolute;
-      width: 100%;
+      padding: 0;
+      font-family: sans-serif;
       height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease;
-      padding: 1rem 2rem;
-      box-sizing: border-box;
-    }
-    #studyScreen {
-      display: none;
-      background: transparent;
-      justify-content: flex-start;
-      padding-top: 3rem;
-      overflow: hidden;
-      color: inherit;
-    }
-
-    .card {
-      background: white;
-      color: #333;
-      padding: 1rem 2rem;
-      margin: 1rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      min-width: 260px;
-      max-width: 320px;
-    }
-    body.dark .card {
-      background: #2c2c3e;
-      color: #ccc;
-      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin: 0 0 1rem 0;
-    }
-
-    select, button, input[type="text"] {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-      width: 100%;
-      box-sizing: border-box;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    body.dark select, body.dark button, body.dark input[type="text"] {
-      background-color: #44445a;
-      border-color: #66667a;
-      color: #ddd;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    #scene {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
       background-size: cover;
       background-position: center;
-      overflow: hidden;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1rem 2rem;
-      box-sizing: border-box;
-      color: inherit;
-    }
-
-    #character {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      height: 100%;
-      width: auto;
-      max-width: 100%;
-      pointer-events: none;
-      opacity: 0.95;
-      user-select: none;
-    }
-
-    #timer {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 2rem;
-      background: rgba(255,255,255,0.8);
-      padding: 0.7rem 1.2rem;
-      border-radius: 12px;
-      user-select: none;
-      color: #000;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    body.dark #timer {
-      background: rgba(0,0,0,0.7);
+      transition: background-image 0.5s ease;
       color: #fff;
     }
 
-    #stopBtn {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      padding: 0.6rem 1.2rem;
+    .overlay {
+      background: rgba(0, 0, 0, 0.6);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    select, input[type="number"], button {
+      margin: 10px 0;
+      padding: 10px;
       font-size: 1rem;
-      background: #ffdddd;
-      border: 1px solid #cc0000;
       border-radius: 8px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s ease;
-    }
-    #stopBtn:hover {
-      background: #ffbbbb;
-    }
-    body.dark #stopBtn {
-      background: #550000;
-      border-color: #ff4444;
-      color: white;
-    }
-    body.dark #stopBtn:hover {
-      background: #770000;
+      border: none;
     }
 
-    #spotifyPlayer {
+    .hidden {
       display: none;
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      user-select: none;
     }
 
-    #playSpotifyBtn {
-      background-color: #1DB954;
-      color: white;
-      font-size: 0.9rem;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      user-select: none;
-      transition: background-color 0.3s ease;
-    }
-    #playSpotifyBtn:hover {
-      background-color: #17a44b;
-    }
-
-    /* Theme toggle button styles */
-    #themeToggle {
-      font-size: 1.2rem;
-      padding: 0.3rem 0.5rem;
-      cursor: pointer;
-      border-radius: 5px;
-      border: none;
-      background-color: #eee;
-      transition: background-color 0.3s ease;
-      user-select: none;
-    }
-    #themeToggle:hover {
-      background-color: #ddd;
-    }
-    body.dark #themeToggle {
-      background-color: #44445a;
-      color: #ccc;
-    }
-    body.dark #themeToggle:hover {
-      background-color: #55556a;
-    }
-    /* Position in setup screen: top-left */
-    #setupScreen #themeToggle {
+    .persona-img {
       position: absolute;
       top: 10px;
-      left: 10px;
-      z-index: 10;
-    }
-    /* Position in study screen: below To-Do list */
-    #studyScreen #themeToggle {
-      position: static;
-      margin-top: 1rem;
-      align-self: flex-start;
+      right: 10px;
+      width: 60px;
+      height: 60px;
     }
 
-    /* To-Do list styling */
-    #todoContainer {
-      background: white;
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
-      margin: 1rem 0 0 0;
-      max-width: 320px;
-      width: 100%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      color: #333;
-    }
-    body.dark #todoContainer {
-      background: #2c2c3e;
-      color: #ccc;
-      box-shadow: 0 4px 10px rgba(255,255,255,0.1);
-    }
-    #todoContainer h2 {
-      margin-top: 0;
-      font-size: 1.4rem;
-      margin-bottom: 0.6rem;
-    }
-    #todoList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      max-height: 220px;
-      overflow-y: auto;
-    }
-    #todoList li {
-      margin-bottom: 0.5rem;
-      font-size: 1rem;
+    .timer-view {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      user-select: none;
-    }
-    #todoList input[type="checkbox"] {
-      margin-right: 0.75rem;
-      transform: scale(1.3);
-      cursor: pointer;
-    }
-    #todoInputForm {
-      display: flex;
-      margin-top: 0.75rem;
-    }
-    #todoInputForm input[type="text"] {
-      flex-grow: 1;
-      margin-right: 0.5rem;
     }
 
-    /* Rest time selector */
-    #restSelector {
-      margin-top: 1rem;
-      background: white;
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
-      max-width: 320px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      color: #333;
-      user-select: none;
-    }
-    body.dark #restSelector {
-      background: #2c2c3e;
-      color: #ccc;
-      box-shadow: 0 4px 10px rgba(255,255,255,0.1);
-    }
-    #restSelector label {
-      margin-right: 1rem;
-      font-weight: 600;
-      font-size: 1rem;
-    }
-    #restSelector select {
-      width: auto;
-      font-size: 1rem;
-      padding: 0.3rem 0.6rem;
+    #main-timer {
+      font-size: 4rem;
+      margin: 20px 0;
     }
 
+    .progress-bar {
+      width: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      height: 200px;
+      margin: 20px auto;
+      position: relative;
+    }
+
+    .progress-fill {
+      background: lime;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+    }
+
+    .info-box {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+
+    @media (min-width: 768px) {
+      .overlay {
+        padding: 40px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Setup screen -->
-  <div id="setupScreen">
-    <button id="themeToggle" title="Toggle light/dark mode">🌙</button>
+  <div class="overlay" id="setup">
+    <h1>🎓 Study Buddy Setup</h1>
 
-    <div class="card">
-      <h1>Set Your Study Session</h1>
-
-      <label for="timeSelector">Choose study session length:</label>
-      <select id="timeSelector" aria-label="Select study session time">
-        <option value="900">15 minutes</option>
-        <option value="1800">30 minutes</option>
-        <option value="2700">45 minutes</option>
-        <option value="3600">1 hour</option>
-        <option value="4500">1 hour 15 minutes</option>
-        <option value="5400">1 hour 30 minutes</option>
-        <option value="6300">1 hour 45 minutes</option>
-        <option value="7200">2 hours</option>
-        <option value="8100">2 hours 15 minutes</option>
-        <option value="9000">2 hours 30 minutes</option>
-        <option value="9900">2 hours 45 minutes</option>
-        <option value="10800">3 hours</option>
+    <label>⏳ Study Duration:
+      <select id="duration">
+        <option value="25">25 mins</option>
+        <option value="50">50 mins</option>
+        <option value="90">90 mins</option>
+        <option value="custom">Custom</option>
       </select>
+    </label>
+    <input type="number" id="custom-duration" class="hidden" min="5" placeholder="Enter custom mins" />
 
-      <form id="todoInputForm" aria-label="Add tasks to your to-do list">
-        <input type="text" id="todoInput" placeholder="Add a task..." autocomplete="off" />
-        <button type="submit" aria-label="Add task">Add</button>
-      </form>
+    <label>🔁 Break Frequency:
+      <select id="break-frequency"></select>
+    </label>
 
-      <div id="todoContainer" aria-live="polite" aria-atomic="true">
-        <h2>To-Do List</h2>
-        <ul id="todoList" role="list"></ul>
-      </div>
+    <label>☕ Break Duration:
+      <select id="break-duration">
+        <option value="5">5 mins</option>
+        <option value="10">10 mins</option>
+        <option value="15">15 mins</option>
+      </select>
+    </label>
 
-      <button id="startBtn" style="margin-top:1.5rem;">Start Studying</button>
+    <label>🎭 Persona:
+      <select id="persona">
+        <option value="cat.png">😺 Cat</option>
+        <option value="male.png">👨‍🎓 Male PhD Student</option>
+        <option value="female.png">👩‍🎓 Female PhD Student</option>
+      </select>
+    </label>
+
+    <label>🎨 Background:
+      <select id="background">
+        <option value="cafe.jpg">Cafe</option>
+        <option value="library.jpg">Library</option>
+        <option value="studyroom.jpg">Study Room</option>
+      </select>
+    </label>
+
+    <button onclick="startSession()">Start Studying</button>
+  </div>
+
+  <div class="overlay hidden" id="timer-ui">
+    <img id="persona-img" class="persona-img" />
+    <div class="timer-view">
+      <div id="main-timer">00:00</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="info-box" id="info-box"></div>
     </div>
   </div>
 
-  <!-- Study screen -->
-  <div id="studyScreen" style="display:none; flex-direction: column; align-items: flex-start; padding-left: 3rem;">
-    <div id="todoContainerStudy" style="width: 320px;">
-      <h2>To-Do List</h2>
-      <ul id="todoListStudy" role="list"></ul>
-      <!-- Theme toggle will be moved here dynamically -->
-    </div>
+  <audio id="ding-sound" src="ding.mp3" preload="auto"></audio>
 
-    <div id="restSelector" style="display:none; margin-top: 1rem;">
-      <label for="restTimeSelect">Select rest duration:</label>
-      <select id="restTimeSelect" aria-label="Select rest time">
-        <option value="600">10 minutes</option>
-        <option value="900">15 minutes</option>
-      </select>
-    </div>
+  <script>
+    const durationSelect = document.getElementById('duration');
+    const customDurationInput = document.getElementById('custom-duration');
+    const breakFrequencySelect = document.getElementById('break-frequency');
+    const breakDurationSelect = document.getElementById('break-duration');
+    const personaSelect = document.getElementById('persona');
+    const backgroundSelect = document.getElementById('background');
 
-    <div id="scene" aria-live="polite" aria-atomic="true">
-      <div id="timer" aria-label="Study timer">00:00</div>
-      <button id="stopBtn" aria-label="Stop study session">Stop</button>
-    </div>
-  </div>
+    let totalDuration = 25;
+    let breakPoints = [];
+    let breakDuration = 5;
+    let personaImg = '';
+    let backgroundImg = '';
+    let currentPhase = 'work';
+    let phaseIndex = 0;
+    let timer;
+    let startTime;
+    let phaseTimes = [];
 
-<script>
-  // Elements
-  const body = document.body;
-  const themeToggleBtn = document.getElementById('themeToggle');
-  const setupScreen = document.getElementById('setupScreen');
-  const studyScreen = document.getElementById('studyScreen');
-  const timeSelector = document.getElementById('timeSelector');
-  const startBtn = document.getElementById('startBtn');
-  const stopBtn = document.getElementById('stopBtn');
-  const timerDisplay = document.getElementById('timer');
-  const todoInputForm = document.getElementById('todoInputForm');
-  const todoInput = document.getElementById('todoInput');
-  const todoList = document.getElementById('todoList');
-  const todoListStudy = document.getElementById('todoListStudy');
-  const restSelector = document.getElementById('restSelector');
-  const restTimeSelect = document.getElementById('restTimeSelect');
-  const todoContainerStudy = document.getElementById('todoContainerStudy');
-
-  // State
-  let isDark = false;
-  let todos = [];
-  let studyTimer = null;
-  let restTimer = null;
-  let remainingSeconds = 0;
-  let focusCheckpoints = [];
-  let nextFocusIndex = 0;
-  let studyDuration = 0;
-  let resting = false;
-
-  // Initialize theme from local storage or default
-  if(localStorage.getItem('theme') === 'dark') {
-    isDark = true;
-    body.classList.add('dark');
-    themeToggleBtn.textContent = '☀️';
-  }
-
-  // Functions
-  function toggleTheme() {
-    isDark = !isDark;
-    if(isDark) {
-      body.classList.add('dark');
-      themeToggleBtn.textContent = '☀️';
-      localStorage.setItem('theme', 'dark');
-    } else {
-      body.classList.remove('dark');
-      themeToggleBtn.textContent = '🌙';
-      localStorage.setItem('theme', 'light');
-    }
-  }
-
-  function renderTodos() {
-    // Clear both lists
-    todoList.innerHTML = '';
-    todoListStudy.innerHTML = '';
-
-    todos.forEach((todo, index) => {
-      // Setup screen list item
-      const liSetup = document.createElement('li');
-      const checkboxSetup = document.createElement('input');
-      checkboxSetup.type = 'checkbox';
-      checkboxSetup.checked = todo.done || false;
-      checkboxSetup.addEventListener('change', () => {
-        todos[index].done = checkboxSetup.checked;
-        renderTodos();
-      });
-      liSetup.appendChild(checkboxSetup);
-      liSetup.appendChild(document.createTextNode(todo.task));
-      todoList.appendChild(liSetup);
-
-      // Study screen list item
-      const liStudy = document.createElement('li');
-      const checkboxStudy = document.createElement('input');
-      checkboxStudy.type = 'checkbox';
-      checkboxStudy.checked = todo.done || false;
-      checkboxStudy.addEventListener('change', () => {
-        todos[index].done = checkboxStudy.checked;
-        renderTodos();
-      });
-      liStudy.appendChild(checkboxStudy);
-      liStudy.appendChild(document.createTextNode(todo.task));
-      todoListStudy.appendChild(liStudy);
+    durationSelect.addEventListener('change', () => {
+      if (durationSelect.value === 'custom') {
+        customDurationInput.classList.remove('hidden');
+      } else {
+        customDurationInput.classList.add('hidden');
+        updateBreakOptions(parseInt(durationSelect.value));
+      }
     });
-  }
 
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60).toString().padStart(2,'0');
-    const secs = (seconds % 60).toString().padStart(2,'0');
-    return `${mins}:${secs}`;
-  }
+    customDurationInput.addEventListener('input', () => {
+      updateBreakOptions(parseInt(customDurationInput.value));
+    });
 
-  function promptFocusLevel() {
-    let level = prompt("How focused are you right now? (0 - Not focused, 10 - Fully focused)", "7");
-    if(level === null) return; // user cancelled
-    level = parseInt(level);
-    if(isNaN(level) || level < 0 || level > 10) {
-      alert("Please enter a number between 0 and 10.");
-      promptFocusLevel();
-      return;
+    function updateBreakOptions(duration) {
+      breakFrequencySelect.innerHTML = '';
+      if (!duration || duration < 5) return;
+      [15, 30, 45].forEach(val => {
+        if (val < duration) {
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.textContent = `Break every ${val} mins`;
+          breakFrequencySelect.appendChild(opt);
+        }
+      });
     }
-    console.log("Focus level reported:", level);
-  }
 
-  function startStudyTimer(duration) {
-    remainingSeconds = duration;
-    studyDuration = duration;
-    focusCheckpoints = [
-      Math.floor(duration * 0.25),
-      Math.floor(duration * 0.5),
-      Math.floor(duration * 0.75)
-    ];
-    nextFocusIndex = 0;
-    resting = false;
-    restSelector.style.display = 'block';
+    function startSession() {
+      totalDuration = durationSelect.value === 'custom'
+        ? parseInt(customDurationInput.value)
+        : parseInt(durationSelect.value);
 
-    updateTimerDisplay();
+      const breakFreq = parseInt(breakFrequencySelect.value);
+      breakDuration = parseInt(breakDurationSelect.value);
+      personaImg = personaSelect.value;
+      backgroundImg = backgroundSelect.value;
 
-    studyTimer = setInterval(() => {
-      if(resting) return;
-
-      remainingSeconds--;
-
-      updateTimerDisplay();
-
-      if(nextFocusIndex < focusCheckpoints.length && remainingSeconds === duration - focusCheckpoints[nextFocusIndex]) {
-        promptFocusLevel();
-        nextFocusIndex++;
+      breakPoints = [];
+      for (let i = breakFreq; i < totalDuration; i += breakFreq) {
+        breakPoints.push(i);
       }
 
-      if(remainingSeconds <= 0) {
-        clearInterval(studyTimer);
-        studyTimer = null;
-        startRestTimer(parseInt(restTimeSelect.value));
+      // Calculate all phases
+      phaseTimes = [];
+      let time = 0;
+      for (let i = 0; i < breakPoints.length; i++) {
+        phaseTimes.push({ type: 'work', duration: breakPoints[i] - time });
+        time = breakPoints[i];
+        phaseTimes.push({ type: 'break', duration: breakDuration });
+        time += breakDuration;
       }
-    }, 1000);
-  }
-
-  function startRestTimer(duration) {
-    remainingSeconds = duration;
-    resting = true;
-    updateTimerDisplay();
-
-    restTimer = setInterval(() => {
-      remainingSeconds--;
-      updateTimerDisplay();
-
-      if(remainingSeconds <= 0) {
-        clearInterval(restTimer);
-        restTimer = null;
-        resting = false;
-        alert("Rest over! Time to get back to studying.");
-        // Auto restart study timer
-        startStudyTimer(studyDuration);
+      if (time < totalDuration) {
+        phaseTimes.push({ type: 'work', duration: totalDuration - time });
       }
-    }, 1000);
-  }
 
-  function updateTimerDisplay() {
-    timerDisplay.textContent = formatTime(remainingSeconds);
-    if(resting) {
-      timerDisplay.style.backgroundColor = isDark ? 'rgba(0, 128, 128, 0.8)' : 'rgba(128, 255, 255, 0.8)';
-      timerDisplay.textContent += ' (Rest)';
-    } else {
-      timerDisplay.style.backgroundColor = isDark ? 'rgba(128, 0, 128, 0.8)' : 'rgba(255, 128, 255, 0.8)';
+      // Switch views
+      document.getElementById('setup').classList.add('hidden');
+      document.getElementById('timer-ui').classList.remove('hidden');
+
+      // Apply background and persona
+      document.body.style.backgroundImage = `url(${backgroundImg})`;
+      document.getElementById('persona-img').src = personaImg;
+
+      startPhase();
     }
-  }
 
-  // Event Listeners
-  themeToggleBtn.addEventListener('click', toggleTheme);
+    function startPhase() {
+      const current = phaseTimes[phaseIndex];
+      currentPhase = current.type;
+      const totalSecs = current.duration * 60;
+      startTime = Date.now();
 
-  todoInputForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const val = todoInput.value.trim();
-    if(val === '') return;
-    todos.push({ task: val, done: false });
-    todoInput.value = '';
-    renderTodos();
-  });
+      playDing();
+      updateInfoBox();
 
-  startBtn.addEventListener('click', () => {
-    if(todos.length === 0) {
-      if(!confirm("You haven't added any tasks to your To-Do list. Are you sure you want to start?")) {
-        return;
-      }
+      timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const remaining = totalSecs - elapsed;
+
+        if (remaining <= 0) {
+          clearInterval(timer);
+          phaseIndex++;
+          if (phaseIndex < phaseTimes.length) {
+            startPhase();
+          } else {
+            document.getElementById('main-timer').textContent = "🎉 Done!";
+            document.getElementById('info-box').textContent = "";
+          }
+        } else {
+          document.getElementById('main-timer').textContent = formatTime(remaining);
+          const pct = (elapsed / totalSecs) * 100;
+          document.getElementById('progress-fill').style.height = `${pct}%`;
+          updateInfoBox(remaining);
+        }
+      }, 500);
     }
-    setupScreen.style.display = 'none';
-    studyScreen.style.display = 'flex';
 
-    // Move theme toggle to study screen's to-do container
-    todoContainerStudy.appendChild(themeToggleBtn);
-
-    startStudyTimer(parseInt(timeSelector.value));
-  });
-
-  stopBtn.addEventListener('click', () => {
-    if(studyTimer) {
-      clearInterval(studyTimer);
-      studyTimer = null;
+    function updateInfoBox(secs = null) {
+      const next = currentPhase === 'work' ? 'break' : 'work';
+      const msg = currentPhase === 'work' ? 'Next break in' : 'Work resumes in';
+      const duration = secs !== null ? formatTime(secs) : '';
+      document.getElementById('info-box').textContent = `${msg} ${duration}`;
     }
-    if(restTimer) {
-      clearInterval(restTimer);
-      restTimer = null;
+
+    function formatTime(seconds) {
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      return `${m}:${s}`;
     }
-    alert('Study session stopped.');
-    studyScreen.style.display = 'none';
-    setupScreen.style.display = 'block';
 
-    // Move theme toggle back to setup screen
-    document.getElementById('setupScreen').insertBefore(themeToggleBtn, document.getElementById('setupScreen').firstChild);
-  });
+    function playDing() {
+      document.getElementById('ding-sound').play();
+    }
 
-  renderTodos();
-</script>
+    // Initial break options setup
+    updateBreakOptions(totalDuration);
+  </script>
 </body>
 </html>
 
