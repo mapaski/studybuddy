@@ -23,7 +23,11 @@
   <button onclick="addTask()">Add</button>
   <ul id="todoList" style="text-align: left; padding-left: 1rem;"></ul>
 </div>
-
+<div class="card">
+  <label>
+    <input type="checkbox" id="pomodoroCheck" /> Enable Pomodoro Mode ⏱️
+  </label>
+</div>
 <div class="card" style="position: absolute; bottom: 120px; right: 20px; z-index: 10;">
   <h2>🍅 Pomodoro Timer</h2>
   <div id="pomodoroDisplay">25:00</div>
@@ -194,7 +198,9 @@
     const spotifyPlayer = document.getElementById('spotifyPlayer');
     const spotifyCheck = document.getElementById('spotifyCheck');
     let timerInterval;
-
+let isPomodoro = false;
+let pomodoroPhases = []; // alternating focus and break phases
+let currentPhase = 0;
     startBtn.addEventListener('click', () => {
       const character = document.getElementById('characterSelect').value;
       const background = document.getElementById('backgroundSelect').value;
@@ -203,6 +209,24 @@
       characterImg.src = character;
       scene.style.backgroundImage = `url(${background})`;
       startTimer(duration);
+isPomodoro = document.getElementById('pomodoroCheck').checked;
+
+if (isPomodoro) {
+  // Push 4 cycles: 25min focus, 5min break
+  pomodoroPhases = [
+    { type: 'Focus', duration: 1500 },
+    { type: 'Break', duration: 300 },
+    { type: 'Focus', duration: 1500 },
+    { type: 'Break', duration: 300 },
+    { type: 'Focus', duration: 1500 },
+    { type: 'Break', duration: 300 },
+    { type: 'Focus', duration: 1500 },
+  ];
+  currentPhase = 0;
+  startPomodoroPhase();
+} else {
+  startTimer(duration);
+}
 
       if (spotifyCheck.checked) {
         spotifyPlayer.style.display = "block";
@@ -221,19 +245,36 @@
       timerDisplay.textContent = '';
       spotifyPlayer.style.display = 'none';
     });
+function startPomodoroPhase() {
+  if (currentPhase >= pomodoroPhases.length) {
+    alert("🎉 Pomodoro session complete!");
+    stopBtn.click(); // reset
+    return;
+  }
 
-    function startTimer(seconds) {
-      let remaining = seconds;
-      updateTimerDisplay(remaining);
-      timerInterval = setInterval(() => {
-        remaining--;
-        updateTimerDisplay(remaining);
-        if (remaining <= 0) {
-          clearInterval(timerInterval);
-        }
-      }, 1000);
+  const phase = pomodoroPhases[currentPhase];
+  updateTimerLabel(phase.type);
+  startTimer(phase.duration, () => {
+    currentPhase++;
+    startPomodoroPhase();
+  });
+}
+
+   function startTimer(seconds, callback) {
+  let remaining = seconds;
+  updateTimerDisplay(remaining);
+  timerInterval = setInterval(() => {
+    remaining--;
+    updateTimerDisplay(remaining);
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      if (callback) callback();
     }
-
+  }, 1000);
+}
+    function updateTimerLabel(type) {
+  timerDisplay.textContent = `${type} Session ⏳`;
+}
     function updateTimerDisplay(seconds) {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
