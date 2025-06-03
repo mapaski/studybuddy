@@ -2,183 +2,590 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Study Session App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Study With Me</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      color: #333;
       margin: 0;
-      padding: 20px;
-      transition: background 0.5s, color 0.5s;
+      font-family: 'Baloo 2', cursive;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #ffe6f0;
+      transition: background 0.3s, color 0.3s;
     }
-    .dark {
-      background: #1a1a1a;
-      color: #e0e0e0;
+    body.dark {
+      background: #222;
+      color: #eee;
     }
-    button, select {
-      margin: 10px;
-      padding: 10px;
-    }
-    #scene2 {
-      display: none;
-    }
-    .todo-item {
-      margin-bottom: 5px;
-    }
-    .todo-done {
-      text-decoration: line-through;
-    }
-    #todoListView {
-      margin-top: 10px;
-    }
-    #focusPrompt {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border: 1px solid #ccc;
-      padding: 20px;
-      z-index: 1000;
-    }
-    #todoListTopLeft {
+
+    #setupScreen,
+    #studyScreen {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    #studyScreen {
+      display: none;
+      position: relative;
+    }
+
+    .card {
+      background: white;
+      padding: 1rem 2rem;
+      margin: 1rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 300px;
+      max-width: 90vw;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark .card {
+      background: #333;
+      color: #eee;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    select,
+    button,
+    input[type="text"] {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    body.dark select,
+    body.dark input[type="text"] {
+      background: #444;
+      color: #eee;
+      border-color: #666;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #e73370;
+    }
+    body.dark button {
+      background-color: #e040fb;
+    }
+    body.dark button:hover {
+      background-color: #ba00d6;
+    }
+
+    #scene {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #character {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+      pointer-events: none;
+      opacity: 0.95;
+      user-select: none;
+    }
+
+    #timer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 2rem;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.7rem 1.2rem;
+      border-radius: 12px;
+      user-select: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark #timer {
+      background: rgba(0, 0, 0, 0.7);
+      color: #eee;
+    }
+
+    #stopBtn {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background: #ffdddd;
+      border: 1px solid #cc0000;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    #stopBtn:hover {
+      background: #ffbbbb;
+    }
+    body.dark #stopBtn {
+      background: #660000;
+      border-color: #cc4444;
+      color: #fff;
+    }
+    body.dark #stopBtn:hover {
+      background: #990000;
+    }
+
+    #spotifyPlayer {
+      display: none;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      user-select: none;
+    }
+
+    #playSpotifyBtn {
+      background-color: #1db954;
+      color: white;
+      font-size: 0.9rem;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      user-select: none;
+      transition: background-color 0.3s;
+    }
+    #playSpotifyBtn:hover {
+      background-color: #17a44c;
+    }
+
+    /* To-Do List Styles */
+    #todoSetupList {
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+      text-align: left;
+    }
+    #todoSetupList li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    #todoSetupList li label {
+      flex-grow: 1;
+    }
+    #todoSetupList li button {
+      margin-left: 6px;
+      background: transparent;
+      border: none;
+      color: #cc0000;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    #todoInputContainer {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    #todoInput {
+      flex-grow: 1;
+    }
+
+    /* To-Do on Study Screen */
+    #todoStudyList {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      border-radius: 12px;
+      max-width: 280px;
+      max-height: 70vh;
+      overflow-y: auto;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      font-size: 0.9rem;
+      user-select: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark #todoStudyList {
+      background: rgba(50, 50, 50, 0.9);
+      color: #eee;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    #todoStudyList label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    #todoStudyList input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    /* Rest time selector */
+    #restSelector {
+      position: absolute;
+      bottom: 70px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+      user-select: none;
+      font-size: 1rem;
+      display: none;
+    }
+    body.dark #restSelector {
+      background: rgba(40, 40, 40, 0.95);
+      color: #eee;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Theme switcher button */
+    #themeToggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      z-index: 1000;
+      transition: background-color 0.3s;
+    }
+    #themeToggle:hover {
+      background: #555;
+    }
+    body.dark #themeToggle {
+      background: #eee;
+      color: #222;
+    }
+    body.dark #themeToggle:hover {
+      background: #ccc;
     }
   </style>
 </head>
 <body>
-  <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+  <!-- Theme toggle -->
+  <button id="themeToggle" title="Toggle Light/Dark Theme">🌙</button>
 
-  <div id="scene1">
-    <h1>Start Your Study Session</h1>
-    <label for="duration">Choose duration:</label>
-    <select id="duration">
-      <option value="15">15 minutes</option>
-      <option value="30">30 minutes</option>
-      <option value="45">45 minutes</option>
-      <option value="60">1 hour</option>
-      <option value="75">1 hour 15 minutes</option>
-      <option value="90">1 hour 30 minutes</option>
-      <option value="105">1 hour 45 minutes</option>
-      <option value="120">2 hours</option>
-      <option value="135">2 hours 15 minutes</option>
-      <option value="150">2 hours 30 minutes</option>
-      <option value="165">2 hours 45 minutes</option>
-      <option value="180">3 hours</option>
-    </select>
+  <div id="setupScreen">
+    <div class="card">
+      <h1>Hi, let's get this ultimate focused study session going star!! ✨</h1>
+    </div>
 
-    <h2>Tasks for this session:</h2>
-    <input type="text" id="taskInput" placeholder="Enter task..." />
-    <button onclick="addTask()">Add Task</button>
-    <ul id="todoListView"></ul>
+    <div class="card">
+      <label for="characterSelect">Choose your study buddy:</label>
+      <select id="characterSelect">
+        <option value="studycat.png">Study Cat</option>
+        <option value="female.png">Focused PhD student (female)</option>
+        <option value="male.png">Focused PhD student (male)</option>
+      </select>
+    </div>
 
-    <button onclick="startSession()">Start Session</button>
+    <div class="card">
+      <label for="backgroundSelect">Choose your study vibe:</label>
+      <select id="backgroundSelect">
+        <option value="cafe.jpg">Cafe</option>
+        <option value="library.jpg">Library</option>
+        <option value="studyroom.jpg">Study Room</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="timerSelect">Set your timer:</label>
+      <select id="timerSelect">
+        <option value="900">15 minutes</option>
+        <option value="1800">30 minutes</option>
+        <option value="2700">45 minutes</option>
+        <option value="3600">1 hour</option>
+        <option value="4500">1 hour 15 minutes</option>
+        <option value="5400">1 hour 30 minutes</option>
+        <option value="6300">1 hour 45 minutes</option>
+        <option value="7200">2 hours</option>
+        <option value="8100">2 hours 15 minutes</option>
+        <option value="9000">2 hours 30 minutes</option>
+        <option value="9900">2 hours 45 minutes</option>
+        <option value="10800">3 hours</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <label for="todoInput">Add To-Do tasks:</label>
+      <div id="todoInputContainer">
+        <input type="text" id="todoInput" placeholder="New task..." />
+        <button id="addTodoBtn">Add</button>
+      </div>
+      <ul id="todoSetupList"></ul>
+    </div>
+
+    <button id="startBtn" style="margin-top: 1rem;">Start Studying</button>
   </div>
 
-  <div id="scene2">
-    <div id="todoListTopLeft"></div>
-    <h1>You're Studying!</h1>
-    <p id="timerDisplay"></p>
-    <label for="restDuration">Rest time after session:</label>
-    <select id="restDuration">
-      <option value="10">10 minutes</option>
-      <option value="15">15 minutes</option>
-    </select>
-  </div>
+  <div id="studyScreen">
+    <div id="todoStudyList"></div>
+    <div id="timer">00:00</div>
+    <button id="stopBtn">Stop</button>
 
-  <div id="focusPrompt">
-    <p>How focused are you feeling right now?</p>
-    <button onclick="submitFocus(1)">😐 Meh</button>
-    <button onclick="submitFocus(2)">🙂 Focused</button>
-    <button onclick="submitFocus(3)">😄 Super Focused</button>
+    <div id="restSelector">
+      Rest time:
+      <select id="restTimeSelect">
+        <option value="600">10 minutes</option>
+        <option value="900">15 minutes</option>
+      </select>
+      <button id="startRestBtn" style="margin-left: 1rem;">Start Rest</button>
+    </div>
+
+    <img id="character" src="" alt="Study Buddy" />
   </div>
 
   <script>
-    let darkMode = false;
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      darkMode = !darkMode;
-    }
-
-    let tasks = [];
-    function addTask() {
-      const task = document.getElementById("taskInput").value;
-      if (task) {
-        tasks.push({ text: task, done: false });
-        document.getElementById("taskInput").value = "";
-        renderTasks();
+    // Theme toggle logic
+    const themeToggleBtn = document.getElementById('themeToggle');
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      if(document.body.classList.contains('dark')){
+        themeToggleBtn.textContent = '☀️';
+      } else {
+        themeToggleBtn.textContent = '🌙';
       }
-    }
+    });
 
-    function renderTasks() {
-      const list1 = document.getElementById("todoListView");
-      const list2 = document.getElementById("todoListTopLeft");
-      list1.innerHTML = "";
-      list2.innerHTML = "<h3>Tasks:</h3>";
+    // To-Do list setup
+    const todoInput = document.getElementById('todoInput');
+    const addTodoBtn = document.getElementById('addTodoBtn');
+    const todoSetupList = document.getElementById('todoSetupList');
+    const todoStudyList = document.getElementById('todoStudyList');
 
-      tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<input type='checkbox' onchange='toggleTask(${index})' ${task.done ? "checked" : ""}/> ${task.text}`;
-        list1.appendChild(li.cloneNode(true));
-        list2.appendChild(li);
+    // We'll keep todos as objects with text and done status
+    let todos = [];
+
+    function renderSetupTodos() {
+      todoSetupList.innerHTML = '';
+      todos.forEach((todo, i) => {
+        const li = document.createElement('li');
+        const label = document.createElement('label');
+        label.textContent = todo.text;
+        li.appendChild(label);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '×';
+        removeBtn.title = 'Remove task';
+        removeBtn.addEventListener('click', () => {
+          todos.splice(i, 1);
+          renderSetupTodos();
+        });
+        li.appendChild(removeBtn);
+
+        todoSetupList.appendChild(li);
       });
     }
 
-    function toggleTask(index) {
-      tasks[index].done = !tasks[index].done;
-      renderTasks();
+    addTodoBtn.addEventListener('click', () => {
+      const text = todoInput.value.trim();
+      if (text) {
+        todos.push({ text, done: false });
+        todoInput.value = '';
+        renderSetupTodos();
+      }
+    });
+
+    todoInput.addEventListener('keypress', e => {
+      if(e.key === 'Enter') {
+        addTodoBtn.click();
+      }
+    });
+
+    // Study screen To-Do list render & interaction
+    function renderStudyTodos() {
+      todoStudyList.innerHTML = '<h3>To-Do</h3>';
+      todos.forEach((todo, i) => {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.done;
+        checkbox.addEventListener('change', () => {
+          todos[i].done = checkbox.checked;
+          renderStudyTodos();
+        });
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(todo.text));
+        todoStudyList.appendChild(label);
+        todoStudyList.appendChild(document.createElement('br'));
+      });
     }
 
-    let sessionDuration = 0;
-    let timerInterval;
-    let focusInterval;
-    let secondsPassed = 0;
+    // Timer & Study logic
+    const setupScreen = document.getElementById('setupScreen');
+    const studyScreen = document.getElementById('studyScreen');
+    const characterImg = document.getElementById('character');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const timerDisplay = document.getElementById('timer');
+    const backgroundSelect = document.getElementById('backgroundSelect');
+    const characterSelect = document.getElementById('characterSelect');
+    const timerSelect = document.getElementById('timerSelect');
+    const restSelector = document.getElementById('restSelector');
+    const restTimeSelect = document.getElementById('restTimeSelect');
+    const startRestBtn = document.getElementById('startRestBtn');
 
-    function startSession() {
-      sessionDuration = parseInt(document.getElementById("duration").value) * 60;
-      document.getElementById("scene1").style.display = "none";
-      document.getElementById("scene2").style.display = "block";
-      startTimer();
-      setupFocusPrompts();
-    }
+    let studyTimer = null;
+    let restTimer = null;
+    let totalSeconds = 0;
+    let secondsLeft = 0;
 
-    function startTimer() {
-      const display = document.getElementById("timerDisplay");
-      timerInterval = setInterval(() => {
-        secondsPassed++;
-        const mins = Math.floor((sessionDuration - secondsPassed) / 60);
-        const secs = (sessionDuration - secondsPassed) % 60;
-        display.textContent = `Time left: ${mins}m ${secs}s`;
-        if (secondsPassed >= sessionDuration) {
-          clearInterval(timerInterval);
-          clearInterval(focusInterval);
-          display.textContent = "Session complete!";
-        }
-      }, 1000);
-    }
+    // Focus tracker
+    let focusCheckpoints = [];
+    let currentFocusCheckpoint = 0;
 
-    function setupFocusPrompts() {
-      const interval = sessionDuration / 4;
-      let promptsShown = 0;
-      focusInterval = setInterval(() => {
-        if (promptsShown < 4) {
-          document.getElementById("focusPrompt").style.display = "block";
-          promptsShown++;
+    function askFocusLevel() {
+      const level = prompt("On a scale of 1 to 10, how focused are you right now?");
+      if(level !== null) {
+        const n = parseInt(level);
+        if(!isNaN(n) && n >= 1 && n <= 10) {
+          alert(`Thanks! Focus level recorded: ${n}/10`);
+          // You could extend this to save or use this data later.
         } else {
-          clearInterval(focusInterval);
+          alert('Please enter a number between 1 and 10.');
         }
-      }, interval * 1000);
+      }
     }
 
-    function submitFocus(level) {
-      console.log(`Focus level: ${level}`);
-      document.getElementById("focusPrompt").style.display = "none";
+    function setupFocusCheckpoints(duration) {
+      // duration in seconds
+      focusCheckpoints = [
+        Math.floor(duration / 4),
+        Math.floor(duration / 2),
+        Math.floor((duration * 3) / 4)
+      ];
+      currentFocusCheckpoint = 0;
     }
+
+    function updateTimer() {
+      if(secondsLeft <= 0) {
+        clearInterval(studyTimer);
+        studyTimer = null;
+        timerDisplay.textContent = "Time's up! Take a rest.";
+        restSelector.style.display = "block";
+        return;
+      }
+
+      // Check if we reached focus checkpoint
+      if(currentFocusCheckpoint < focusCheckpoints.length && (totalSeconds - secondsLeft) === focusCheckpoints[currentFocusCheckpoint]) {
+        askFocusLevel();
+        currentFocusCheckpoint++;
+      }
+
+      const min = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+      const sec = (secondsLeft % 60).toString().padStart(2, '0');
+      timerDisplay.textContent = `${min}:${sec}`;
+      secondsLeft--;
+    }
+
+    function updateRestTimer() {
+      if(secondsLeft <= 0) {
+        clearInterval(restTimer);
+        restTimer = null;
+        timerDisplay.textContent = "Rest over! Ready for next session.";
+        restSelector.style.display = "none";
+        return;
+      }
+      const min = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+      const sec = (secondsLeft % 60).toString().padStart(2, '0');
+      timerDisplay.textContent = `Rest: ${min}:${sec}`;
+      secondsLeft--;
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (todos.length === 0) {
+        if(!confirm("You haven't added any tasks to your To-Do list. Are you sure you want to start?")) {
+          return;
+        }
+      }
+      setupScreen.style.display = 'none';
+      studyScreen.style.display = 'flex';
+
+      // Set character and background
+      const charSrc = characterSelect.value;
+      const bgSrc = backgroundSelect.value;
+      characterImg.src = charSrc;
+      document.getElementById('studyScreen').style.backgroundImage = `url(${bgSrc})`;
+
+      // Set timer
+      totalSeconds = parseInt(timerSelect.value);
+      secondsLeft = totalSeconds;
+
+      renderStudyTodos();
+
+      restSelector.style.display = 'none';
+      timerDisplay.textContent = '';
+
+      setupFocusCheckpoints(totalSeconds);
+      updateTimer();
+      studyTimer = setInterval(updateTimer, 1000);
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if(studyTimer) {
+        clearInterval(studyTimer);
+        studyTimer = null;
+      }
+      if(restTimer) {
+        clearInterval(restTimer);
+        restTimer = null;
+      }
+      // Reset and go back to setup screen
+      studyScreen.style.display = 'none';
+      setupScreen.style.display = 'flex';
+      timerDisplay.textContent = '00:00';
+      restSelector.style.display = 'none';
+    });
+
+    startRestBtn.addEventListener('click', () => {
+      restSelector.style.display = 'none';
+      secondsLeft = parseInt(restTimeSelect.value);
+      updateRestTimer();
+      restTimer = setInterval(updateRestTimer, 1000);
+    });
+
   </script>
 </body>
 </html>
