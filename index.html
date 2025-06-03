@@ -135,12 +135,19 @@
       <input type="checkbox" id="pomodoroCheck" /> Enable Pomodoro Mode ⏱️
     </label>
   </div>
+<!-- Normal Timer -->
+<div id="normalTimer" class="card" style="position: absolute; bottom: 20px; right: 20px; z-index: 10;">
+  <h2>⏰ Timer</h2>
+  <div id="timerDisplay">00:00</div>
+  <button onclick="startNormalTimer()">Start Timer</button>
+</div>
 
-  <div class="card" style="position: absolute; bottom: 120px; right: 20px; z-index: 10;">
-    <h2>🍅 Pomodoro Timer</h2>
-    <div id="pomodoroDisplay">25:00</div>
-    <button onclick="startPomodoro()">Start Pomodoro</button>
-  </div>
+<!-- Pomodoro Timer -->
+<div id="pomodoroTimer" class="card" style="position: absolute; bottom: 120px; right: 20px; z-index: 10;">
+  <h2>🍅 Pomodoro Timer</h2>
+  <div id="pomodoroDisplay">25:00</div>
+  <button onclick="startPomodoro()">Start Pomodoro</button>
+</div>
 
     <div class="card">
       <label for="characterSelect">Choose your study buddy:</label>
@@ -195,157 +202,163 @@
   </div>
 
   <script>
-    const setupScreen = document.getElementById('setupScreen');
-    const studyScreen = document.getElementById('studyScreen');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const characterImg = document.getElementById('character');
-    const scene = document.getElementById('scene');
-    const timerDisplay = document.getElementById('timer');
-    const spotifyPlayer = document.getElementById('spotifyPlayer');
-    const spotifyCheck = document.getElementById('spotifyCheck');
-    let timerInterval;
-let isPomodoro = false;
-let pomodoroPhases = []; // alternating focus and break phases
-let currentPhase = 0;
-    startBtn.addEventListener('click', () => {
-      const character = document.getElementById('characterSelect').value;
-      const background = document.getElementById('backgroundSelect').value;
-      const duration = parseInt(document.getElementById('timerSelect').value);
+ <script>
+  const pomodoroCheck = document.getElementById('pomodoroCheck');
+  const normalTimer = document.getElementById('normalTimer');
+  const pomodoroTimer = document.getElementById('pomodoroTimer');
+  const setupScreen = document.getElementById('setupScreen');
+  const studyScreen = document.getElementById('studyScreen');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const characterImg = document.getElementById('character');
+  const scene = document.getElementById('scene');
+  const timerDisplay = document.getElementById('timer');
+  const spotifyPlayer = document.getElementById('spotifyPlayer');
+  const spotifyCheck = document.getElementById('spotifyCheck');
+  
+  let timerInterval;
+  let isPomodoro = false;
+  let pomodoroPhases = [];
+  let currentPhase = 0;
 
-      characterImg.src = character;
-      scene.style.backgroundImage = `url(${background})`;
+  window.onload = () => {
+    normalTimer.style.display = 'none';
+    pomodoroTimer.style.display = 'none';
+  };
+
+  startBtn.addEventListener('click', () => {
+    const character = document.getElementById('characterSelect').value;
+    const background = document.getElementById('backgroundSelect').value;
+    const duration = parseInt(document.getElementById('timerSelect').value);
+    isPomodoro = pomodoroCheck.checked;
+
+    characterImg.src = character;
+    scene.style.backgroundImage = `url(${background})`;
+    spotifyPlayer.style.display = spotifyCheck.checked ? "block" : "none";
+
+    if (isPomodoro) {
+      normalTimer.style.display = 'none';
+      pomodoroTimer.style.display = 'block';
+
+      pomodoroPhases = [
+        { type: 'Focus', duration: 1500 },
+        { type: 'Break', duration: 300 },
+        { type: 'Focus', duration: 1500 },
+        { type: 'Break', duration: 300 },
+        { type: 'Focus', duration: 1500 },
+        { type: 'Break', duration: 300 },
+        { type: 'Focus', duration: 1500 },
+      ];
+      currentPhase = 0;
+      startPomodoroPhase();
+    } else {
+      pomodoroTimer.style.display = 'none';
+      normalTimer.style.display = 'block';
       startTimer(duration);
-isPomodoro = document.getElementById('pomodoroCheck').checked;
+    }
 
-if (isPomodoro) {
-  // Push 4 cycles: 25min focus, 5min break
-  pomodoroPhases = [
-    { type: 'Focus', duration: 1500 },
-    { type: 'Break', duration: 300 },
-    { type: 'Focus', duration: 1500 },
-    { type: 'Break', duration: 300 },
-    { type: 'Focus', duration: 1500 },
-    { type: 'Break', duration: 300 },
-    { type: 'Focus', duration: 1500 },
-  ];
-  currentPhase = 0;
-  startPomodoroPhase();
-} else {
-  startTimer(duration);
-}
-
-      if (spotifyCheck.checked) {
-        spotifyPlayer.style.display = "block";
-      } else {
-        spotifyPlayer.style.display = "none";
-      }
-
-      setupScreen.style.display = 'none';
-      studyScreen.style.display = 'flex';
-    });
-
-    stopBtn.addEventListener('click', () => {
-      clearInterval(timerInterval);
-      setupScreen.style.display = 'flex';
-      studyScreen.style.display = 'none';
-      timerDisplay.textContent = '';
-      spotifyPlayer.style.display = 'none';
-    });
-function startPomodoroPhase() {
-  if (currentPhase >= pomodoroPhases.length) {
-    alert("🎉 Pomodoro session complete!");
-    stopBtn.click(); // reset
-    return;
-  }
-
-  const phase = pomodoroPhases[currentPhase];
-  updateTimerLabel(phase.type);
-  startTimer(phase.duration, () => {
-    currentPhase++;
-    startPomodoroPhase();
+    setupScreen.style.display = 'none';
+    studyScreen.style.display = 'flex';
   });
-}
 
-   function startTimer(seconds, callback) {
-  let remaining = seconds;
-  updateTimerDisplay(remaining);
-  timerInterval = setInterval(() => {
-    remaining--;
-    updateTimerDisplay(remaining);
-    if (remaining <= 0) {
-      clearInterval(timerInterval);
-      if (callback) callback();
+  function startPomodoroPhase() {
+    if (currentPhase >= pomodoroPhases.length) {
+      alert("Pomodoro session complete!");
+      return;
     }
-  }, 1000);
-}
-    function updateTimerLabel(type) {
-  timerDisplay.textContent = `${type} Session ⏳`;
-}
-    function updateTimerDisplay(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-    // 🔔 Daily Reminder Notification
-if (Notification.permission !== "granted") {
-  Notification.requestPermission();
-}
-setTimeout(() => {
-  if (Notification.permission === "granted") {
-    new Notification("🧠 Stay sharp!", {
-      body: "Time for a focused study session with your buddy!",
+
+    const phase = pomodoroPhases[currentPhase];
+    updateTimerLabel(phase.type);
+    startTimer(phase.duration, () => {
+      currentPhase++;
+      startPomodoroPhase();
     });
   }
-}, 3000); // First notification 3s after load
 
-// ✅ To-Do List Logic
-function addTask() {
-  const input = document.getElementById('todoInput');
-  const list = document.getElementById('todoList');
-  if (input.value.trim() !== '') {
-    const li = document.createElement('li');
-    li.innerHTML = `<input type="checkbox" /> ${input.value}`;
-    list.appendChild(li);
-    input.value = '';
-  }
-}
-
-// 🍅 Pomodoro Timer Logic
-let pomoSeconds = 1500; // 25 mins
-let pomoInterval;
-function startPomodoro() {
-  clearInterval(pomoInterval);
-  pomoSeconds = 1500;
-  updatePomodoroDisplay();
-  pomoInterval = setInterval(() => {
-    pomoSeconds--;
-    updatePomodoroDisplay();
-    if (pomoSeconds === 0) {
-      clearInterval(pomoInterval);
-      const isBreak = confirm("⏰ Pomodoro complete! Ready for a 5-min break?");
-      if (isBreak) {
-        pomoSeconds = 300; // 5 mins break
-        pomoInterval = setInterval(() => {
-          pomoSeconds--;
-          updatePomodoroDisplay();
-          if (pomoSeconds === 0) {
-            clearInterval(pomoInterval);
-            alert("Break over! Time to get back.");
-            startPomodoro();
-          }
-        }, 1000);
+  function startTimer(seconds, callback) {
+    clearInterval(timerInterval);
+    let remaining = seconds;
+    updateTimerDisplay(remaining);
+    timerInterval = setInterval(() => {
+      remaining--;
+      updateTimerDisplay(remaining);
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        if (callback) callback();
       }
+    }, 1000);
+  }
+
+  function updateTimerLabel(type) {
+    timerDisplay.textContent = `${type} Session ⏳`;
+  }
+
+  function updateTimerDisplay(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // 🔔 Daily Reminder Notification
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+  setTimeout(() => {
+    if (Notification.permission === "granted") {
+      new Notification("🧠 Stay sharp!", {
+        body: "Time for a focused study session with your buddy!",
+      });
     }
-  }, 1000);
-}
-function updatePomodoroDisplay() {
-  const mins = Math.floor(pomoSeconds / 60);
-  const secs = pomoSeconds % 60;
-  document.getElementById('pomodoroDisplay').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-    
+  }, 3000);
+
+  // ✅ To-Do List Logic
+  function addTask() {
+    const input = document.getElementById('todoInput');
+    const list = document.getElementById('todoList');
+    if (input.value.trim() !== '') {
+      const li = document.createElement('li');
+      li.innerHTML = `<input type="checkbox" /> ${input.value}`;
+      list.appendChild(li);
+      input.value = '';
+    }
+  }
+
+  // 🍅 Backup Pomodoro Logic (Not used anymore but can be left for reference)
+  let pomoSeconds = 1500;
+  let pomoInterval;
+  function startPomodoro() {
+    clearInterval(pomoInterval);
+    pomoSeconds = 1500;
+    updatePomodoroDisplay();
+    pomoInterval = setInterval(() => {
+      pomoSeconds--;
+      updatePomodoroDisplay();
+      if (pomoSeconds === 0) {
+        clearInterval(pomoInterval);
+        const isBreak = confirm("⏰ Pomodoro complete! Ready for a 5-min break?");
+        if (isBreak) {
+          pomoSeconds = 300;
+          pomoInterval = setInterval(() => {
+            pomoSeconds--;
+            updatePomodoroDisplay();
+            if (pomoSeconds === 0) {
+              clearInterval(pomoInterval);
+              alert("Break over! Time to get back.");
+              startPomodoro();
+            }
+          }, 1000);
+        }
+      }
+    }, 1000);
+  }
+
+  function updatePomodoroDisplay() {
+    const mins = Math.floor(pomoSeconds / 60);
+    const secs = pomoSeconds % 60;
+    document.getElementById('pomodoroDisplay').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+</script>
+
   </script>
 </body>
 </html>
-
